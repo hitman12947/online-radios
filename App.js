@@ -14,11 +14,15 @@ import stations from './data/stations';
 let playerItem;
 const App = () => {
   const [currentStation, setcurrentStation] = useState('Nothing to Play');
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     if (playerItem) {
       playerItem.stop();
       playerItem.release();
+    } else {
+      playSound(stations[0]);
+      setIsPlaying(true);
     }
   }, []);
 
@@ -28,14 +32,28 @@ const App = () => {
     if (playerItem) {
       playerItem.stop();
       playerItem.release();
+      setIsPlaying(false);
     }
     playerItem = new Sound(item.url, null, (e) => {
       if (e) {
         console.log(e);
       } else {
         playerItem.play();
+        setIsPlaying(true);
       }
     });
+  };
+
+  const playPause = () => {
+    if (playerItem && isPlaying) {
+      playerItem.pause();
+      setIsPlaying(false);
+      return;
+    }
+    if (playerItem) {
+      playerItem.play();
+      setIsPlaying(true);
+    }
   };
 
   return (
@@ -69,6 +87,9 @@ const App = () => {
 
       <View style={styles.player}>
         <Text style={styles.playerText}>{currentStation}</Text>
+        <TouchableOpacity onPress={playPause}>
+          {isPlaying ? <Text>Pause</Text> : <Text>Play</Text>}
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -98,6 +119,8 @@ const styles = StyleSheet.create({
   },
   player: {
     position: 'absolute',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     bottom: 0,
     padding: 10,
     alignSelf: 'center',
